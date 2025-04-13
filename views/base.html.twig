@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TigerGym{% endblock %}</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="container">
+            <div class="nav-content">
+                <div class="nav-brand">
+                    <a href="/" class="logo">
+                        <i class="fas fa-fire"></i>
+                        TigerGym
+                    </a>
+                </div>
+                <div class="nav-links">
+                    <a href="/" class="{{ app.request.pathInfo == '/' ? 'active' : '' }}">Accueil</a>
+                    <a href="/machines" class="{{ app.request.pathInfo == '/machines' ? 'active' : '' }}">Machines</a>
+                    <div class="dropdown">
+                        <a href="#" class="{{ app.request.pathInfo starts with '/vetements' ? 'active' : '' }}">Vêtements <i class="fas fa-chevron-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="/vetements" class="{{ app.request.pathInfo == '/vetements' ? 'active' : '' }}">Tous les vêtements</a>
+                            <a href="/vetements-hommes" class="{{ app.request.pathInfo == '/vetements-hommes' ? 'active' : '' }}">Hommes</a>
+                            <a href="/vetements-femmes" class="{{ app.request.pathInfo == '/vetements-femmes' ? 'active' : '' }}">Femmes</a>
+                        </div>
+                    </div>
+                    <a href="/complements" class="{{ app.request.pathInfo == '/complements' ? 'active' : '' }}">Compléments</a>
+                </div>
+                <div class="nav-actions">
+                    {% if user is defined and user.is_logged_in %}
+                        {% if user is defined and user.role == 'admin' %}
+                            <a href="/admin/articles" class="admin-link {{ app.request.pathInfo starts with '/admin/articles' ? 'active' : '' }}">
+                                <i class="fas fa-cog"></i>
+                                Administration
+                            </a>
+                        {% endif %}
+                        <a href="/deconnexion" class="nav-logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Déconnexion ({{ user.firstname }} {{ user.lastname }})
+                        </a>
+                    {% else %}
+                        <a href="/connexion" class="{{ app.request.pathInfo == '/connexion' ? 'active' : '' }}">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Connexion
+                        </a>
+                    {% endif %}
+                    <a href="/recherche" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>TigerGym</h3>
+                <p>Votre guide de référence pour l'équipement sportif de qualité.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Catégories</h3>
+                <ul>
+                    <li><a href="/machines">Machines</a></li>
+                    <li><a href="/vetements">Vêtements</a></li>
+                    <li><a href="/complements">Compléments</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Liens utiles</h3>
+                <ul>
+                    <li><a href="/about">À propos</a></li>
+                    <li><a href="/mentions-legales">Mentions légales</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; {{ "now"|date("Y") }} TigerGym - Tous droits réservés</p>
+        </div>
+    </footer>
+
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

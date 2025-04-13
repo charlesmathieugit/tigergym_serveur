@@ -1,0 +1,215 @@
+{% macro comments(article_id, comments, comment_count) %}
+    <div class="comments-section" data-article-id="{{ article_id }}" data-user-id="{{ user.id|default('null') }}">
+        <h3>Commentaires ({{ comment_count|default(0) }})</h3>
+        
+        {% if user.is_logged_in %}
+            <div class="comment-form-container">
+                <form id="comment-form" class="comment-form">
+                    <input type="hidden" name="article_id" value="{{ article_id }}">
+                    <div class="form-group">
+                        <textarea name="content" class="form-control" rows="3" placeholder="Votre commentaire..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Ajouter un commentaire</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="comment-login-prompt">
+                <p>Veuillez vous <a href="/connexion">connecter</a> pour laisser un commentaire.</p>
+            </div>
+        {% endif %}
+
+        <div class="comments-list">
+            {% if comments|length > 0 %}
+                {% for comment in comments %}
+                    <div class="comment" data-comment-id="{{ comment.id }}">
+                        <div class="comment-header">
+                            <span class="comment-author">{{ comment.username }}</span>
+                            <span class="comment-date">{{ comment.created_at|date('d/m/Y H:i') }}</span>
+                            {% if user.id == comment.user_id %}
+                                <div class="comment-actions">
+                                    <button class="btn btn-sm btn-edit-comment">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-delete-comment">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="comment-content">
+                            <p>{{ comment.content }}</p>
+                        </div>
+                        {% if comment.updated_at %}
+                            <div class="comment-edited">
+                                <small>(Modifié le {{ comment.updated_at|date('d/m/Y H:i') }})</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-comments">
+                    <p>Aucun commentaire pour le moment.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var commentsSection = document.querySelector('.comments-section');
+            var articleId = commentsSection.dataset.articleId;
+            var commentForm = document.getElementById('comment-form');
+            var commentsList = document.querySelector('.comments-list');
+            var currentUserId = parseInt(commentsSection.dataset.userId) || null;
+
+            function updateCommentsList(comments) {
+                commentsList.innerHTML = '';
+                if (comments.length > 0) {
+                    comments.forEach(function(comment) {
+                        var commentElement = document.createElement('div');
+                        commentElement.className = 'comment';
+                        commentElement.dataset.commentId = comment.id;
+
+                        var actionsHtml = '';
+                        if (currentUserId === parseInt(comment.user_id)) {
+                            actionsHtml = '<div class="comment-actions">' +
+                                '<button class="btn btn-sm btn-edit-comment">' +
+                                    '<i class="fas fa-edit"></i>' +
+                                '</button>' +
+                                '<button class="btn btn-sm btn-delete-comment">' +
+                                    '<i class="fas fa-trash"></i>' +
+                                '</button>' +
+                            '</div>';
+                        }
+
+                        var updatedAtHtml = '';
+                        if (comment.updated_at) {
+                            updatedAtHtml = '<div class="comment-edited">' +
+                                '<small>(Modifié le ' + new Date(comment.updated_at).toLocaleString() + ')</small>' +
+                            '</div>';
+                        }
+
+                        commentElement.innerHTML = 
+                            '<div class="comment-header">' +
+                                '<span class="comment-author">' + comment.username + '</span>' +
+                                '<span class="comment-date">' + new Date(comment.created_at).toLocaleString() + '</span>' +
+                                actionsHtml +
+                            '</div>' +
+                            '<div class="comment-content">' +
+                                '<p>' + comment.content + '</p>' +
+                            '</div>' +
+                            updatedAtHtml;
+                            
+                        commentsList.appendChild(commentElement);
+                    });
+                } else {
+                    commentsList.innerHTML = '<div class="no-comments"><p>Aucun commentaire pour le moment.</p></div>';
+                }
+            }
+
+            if (commentForm) {
+                commentForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    var content = this.querySelector('textarea[name="content"]').value;
+
+                    try {
+                        var response = await fetch('/comments/add', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: 'article_id=' + encodeURIComponent(articleId) + '&content=' + encodeURIComponent(content)
+                        });
+
+                        var data = await response.json();
+                        if (data.success) {
+                            this.reset();
+                            updateCommentsList(data.comments);
+                            var countElement = commentsSection.querySelector('h3');
+                            countElement.textContent = 'Commentaires (' + data.count + ')';
+                        } else {
+                            alert(data.message);
+                        }
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        alert('Une erreur est survenue lors de l\'ajout du commentaire.');
+                    }
+                });
+            }
+
+            commentsList.addEventListener('click', async function(e) {
+                var editButton = e.target.closest('.btn-edit-comment');
+                var deleteButton = e.target.closest('.btn-delete-comment');
+                if (!editButton && !deleteButton) return;
+
+                var commentElement = e.target.closest('.comment');
+                var commentId = commentElement.dataset.commentId;
+
+                if (editButton) {
+                    var contentElement = commentElement.querySelector('.comment-content p');
+                    var currentContent = contentElement.textContent;
+                    var textarea = document.createElement('textarea');
+                    textarea.className = 'form-control edit-comment-textarea';
+                    textarea.value = currentContent;
+                    contentElement.replaceWith(textarea);
+
+                    var saveButton = document.createElement('button');
+                    saveButton.className = 'btn btn-sm btn-primary btn-save-comment';
+                    saveButton.textContent = 'Enregistrer';
+                    editButton.replaceWith(saveButton);
+
+                    saveButton.addEventListener('click', async function() {
+                        try {
+                            var response = await fetch('/comments/update', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: 'comment_id=' + encodeURIComponent(commentId) + '&content=' + encodeURIComponent(textarea.value)
+                            });
+
+                            var data = await response.json();
+                            if (data.success) {
+                                updateCommentsList(data.comments);
+                            } else {
+                                alert(data.message);
+                            }
+                        } catch (error) {
+                            console.error('Erreur:', error);
+                            alert('Une erreur est survenue lors de la modification du commentaire.');
+                        }
+                    });
+                }
+
+                if (deleteButton) {
+                    if (confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?')) {
+                        try {
+                            var response = await fetch('/comments/delete', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: 'comment_id=' + encodeURIComponent(commentId)
+                            });
+
+                            var data = await response.json();
+                            if (data.success) {
+                                updateCommentsList(data.comments);
+                                var countElement = commentsSection.querySelector('h3');
+                                countElement.textContent = 'Commentaires (' + data.count + ')';
+                            } else {
+                                alert(data.message);
+                            }
+                        } catch (error) {
+                            console.error('Erreur:', error);
+                            alert('Une erreur est survenue lors de la suppression du commentaire.');
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endmacro %}

@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nos Vêtements de Sport - TigerGym{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Nos Vêtements<br>de Sport</h1>
+            <p class="hero-subtitle">Style et Performance pour vos Entraînements</p>
+        </div>
+    </section>
+
+    <!-- Filtres Section -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters-wrapper">
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-th-large"></i>
+                        Tout voir
+                    </button>
+                    <button class="filter-btn" data-filter="homme">
+                        <i class="fas fa-male"></i>
+                        Homme
+                    </button>
+                    <button class="filter-btn" data-filter="femme">
+                        <i class="fas fa-female"></i>
+                        Femme
+                    </button>
+                </div>
+                <div class="sort-group">
+                    <select class="sort-select">
+                        <option value="popular">Les plus populaires</option>
+                        <option value="price-asc">Prix croissant</option>
+                        <option value="price-desc">Prix décroissant</option>
+                        <option value="new">Nouveautés</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid Section -->
+    <section class="products-section">
+        <div class="section-header">
+            <h2 class="section-title">Nos Vêtements</h2>
+            <p class="section-subtitle">Une sélection complète pour hommes et femmes</p>
+        </div>
+        <div class="products-grid">
+            {% for article in articles %}
+                <article class="product-card" data-category="{{ article.category == 'vetements-hommes' ? 'homme' : 'femme' }}">
+                    {% if article.image %}
+                        <img src="{{ article.image }}" alt="{{ article.name }}" class="product-image">
+                    {% else %}
+                        <div class="product-image" style="background: linear-gradient(45deg, var(--primary-dark), var(--primary));">
+                            <div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-tshirt" style="font-size: 3rem; color: rgba(255,255,255,0.3);"></i>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="product-overlay"></div>
+                    <div class="product-content">
+                        <span class="product-category">{{ article.category == 'vetements-hommes' ? 'Homme' : 'Femme' }}</span>
+                        <h3 class="product-title">{{ article.name }}</h3>
+                        <p class="product-description">{{ article.description|length > 100 ? article.description|slice(0, 100) ~ '...' : article.description }}</p>
+                        <div class="product-meta">
+                            <span class="product-price">{{ article.price }} €</span>
+                            {% if article.stock > 0 %}
+                                <span class="stock in-stock">En stock</span>
+                            {% else %}
+                                <span class="stock out-of-stock">Rupture de stock</span>
+                            {% endif %}
+                        </div>
+                        <a href="/article/{{ article.id }}" class="product-link">
+                            <i class="fas fa-eye"></i>
+                            Voir le produit
+                        </a>
+                    </div>
+                </article>
+            {% else %}
+                <div class="no-products">
+                    <p>Aucun vêtement disponible pour le moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion des filtres
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const products = document.querySelectorAll('.product-card');
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Retirer la classe active de tous les boutons
+                filterBtns.forEach(b => b.classList.remove('active'));
+                // Ajouter la classe active au bouton cliqué
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                
+                products.forEach(product => {
+                    if (filter === 'all' || product.getAttribute('data-category') === filter) {
+                        product.style.display = 'block';
+                    } else {
+                        product.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Gestion du tri
+        const sortSelect = document.querySelector('.sort-select');
+        sortSelect.addEventListener('change', function() {
+            const value = this.value;
+            const productsArray = Array.from(products);
+            
+            productsArray.sort((a, b) => {
+                const priceA = parseFloat(a.querySelector('.product-price').textContent);
+                const priceB = parseFloat(b.querySelector('.product-price').textContent);
+                
+                if (value === 'price-asc') {
+                    return priceA - priceB;
+                } else if (value === 'price-desc') {
+                    return priceB - priceA;
+                }
+                return 0;
+            });
+            
+            const container = document.querySelector('.products-grid');
+            productsArray.forEach(product => container.appendChild(product));
+        });
+    });
+    </script>
+{% endblock %}

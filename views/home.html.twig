@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - TigerGym{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Équipez-vous<br>Pour la Performance</h1>
+            <p class="hero-subtitle">Les Meilleurs Équipements de Sport Sélectionnés pour Vous</p>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="products-section">
+        <div class="section-header">
+            <h2 class="section-title">Machines Premium</h2>
+            <p class="section-subtitle">Découvrez notre sélection d'équipements haut de gamme</p>
+        </div>
+        <div class="products-grid">
+            {% for product in featuredArticles %}
+                <article class="product-card">
+                    {% if product.image %}
+                        <img src="{{ product.image }}" alt="{{ product.name }}" class="product-image">
+                    {% else %}
+                        <div class="product-image" style="background: linear-gradient(45deg, var(--primary-dark), var(--primary));">
+                            <div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-dumbbell" style="font-size: 3rem; color: rgba(255,255,255,0.3);"></i>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="product-overlay"></div>
+                    <div class="product-content">
+                        <span class="product-category">{{ product.category|replace({'-': ' '})|title }}</span>
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        <p class="product-description">{{ product.description }}</p>
+                        <div class="product-meta">
+                            <span class="product-price">{{ product.price }} €</span>
+                            <div class="product-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                        <a href="/article/{{ product.id }}" class="product-link">
+                            <i class="fas fa-eye"></i>
+                            Voir le produit
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Latest Products Section -->
+    <section class="products-section" style="background: var(--secondary);">
+        <div class="section-header">
+            <h2 class="section-title">Nouveautés</h2>
+            <p class="section-subtitle">Les derniers articles ajoutés à notre sélection</p>
+        </div>
+        <div class="products-grid">
+            {% for product in latestArticles %}
+                <article class="product-card">
+                    {% if product.image %}
+                        <img src="{{ product.image }}" alt="{{ product.name }}" class="product-image">
+                    {% else %}
+                        <div class="product-image" style="background: linear-gradient(45deg, var(--primary-dark), var(--primary));">
+                            <div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-dumbbell" style="font-size: 3rem; color: rgba(255,255,255,0.3);"></i>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="product-overlay"></div>
+                    <div class="product-content">
+                        <span class="product-category">{{ product.category|replace({'-': ' '})|title }}</span>
+                        <h3 class="product-title">{{ product.name }}</h3>
+                        <p class="product-description">{{ product.description }}</p>
+                        <div class="product-meta">
+                            <span class="product-price">{{ product.price }} €</span>
+                            <div class="product-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                        <a href="/article/{{ product.id }}" class="product-link">
+                            <i class="fas fa-eye"></i>
+                            Voir le produit
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

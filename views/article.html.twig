@@ -1,0 +1,99 @@
+{% extends "base.html.twig" %}
+{% import "components/rating.html.twig" as rating_macro %}
+{% import "components/comments.html.twig" as comments_macro %}
+
+{% block title %}{{ article.name }} - TigerGym{% endblock %}
+
+{% block content %}
+    {% if app.debug %}
+        <div class="debug-info">
+            Session debug: {{ user|json_encode }}
+        </div>
+    {% endif %}
+
+    <div class="article-header">
+        <div class="article-header-content">
+            <span class="article-category">{{ article.category|replace({'-': ' '})|title }}</span>
+            <h1 class="article-title">{{ article.name }}</h1>
+            <div class="article-meta">
+                <span class="article-price">{{ article.price }} €</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="article-content">
+        <div class="article-main">
+            <div class="article-image-gallery">
+                {% if article.image %}
+                    <img src="{{ article.image }}" alt="{{ article.name }}" class="article-main-image">
+                {% else %}
+                    <div class="article-placeholder">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="article-description">
+                {{ article.description|raw }}
+            </div>
+
+            <div class="article-ratings-reviews">
+                <div class="article-rating-section">
+                    <h3>Notes et avis</h3>
+                    {{ rating_macro.rating(article.id, article.average_rating, article.user_rating, article.rating_count) }}
+                </div>
+                
+                <div class="article-comments-section">
+                    {{ comments_macro.comments(article.id, article.comments|default([]), article.comment_count|default(0)) }}
+                </div>
+            </div>
+
+            {% if article.features %}
+                <div class="article-features">
+                    <h3>Caractéristiques</h3>
+                    <ul>
+                        {% for feature in article.features %}
+                            <li>{{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="article-sidebar">
+            <div class="article-actions">
+                <a href="{{ article.link }}" class="btn btn-primary btn-lg btn-block" target="_blank">
+                    <i class="fas fa-shopping-cart"></i> Acheter sur Amazon
+                </a>
+            </div>
+
+            {% if similar_articles %}
+                <div class="similar-articles">
+                    <h3>Articles similaires</h3>
+                    <div class="similar-articles-grid">
+                        {% for similar in similar_articles %}
+                            <div class="similar-article-card">
+                                <a href="/article/{{ similar.id }}">
+                                    {% if similar.image %}
+                                        <img src="{{ similar.image }}" alt="{{ similar.name }}">
+                                    {% else %}
+                                        <div class="placeholder">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                    {% endif %}
+                                    <h4>{{ similar.name }}</h4>
+                                    <span class="price">{{ similar.price }} €</span>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ rating_macro.javascripts() }}
+{% endblock %}

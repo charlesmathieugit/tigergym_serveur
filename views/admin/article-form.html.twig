@@ -1,0 +1,230 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article is defined ? 'Modifier' : 'Ajouter' }} un article - Administration TigerGym{% endblock %}
+
+{% block styles %}
+<style>
+.hero-section {
+    background-color: #f7f7f7;
+    padding: 2rem;
+    text-align: center;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.hero-content p {
+    font-size: 1.5rem;
+    color: #666;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.section-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 2rem;
+}
+
+.action-button {
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.action-button i {
+    margin-right: 1rem;
+}
+
+.form-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.form-main {
+    padding: 2rem;
+}
+
+.form-sidebar {
+    padding: 2rem;
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+}
+
+.form-group {
+    margin-bottom: 2rem;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.form-group input, .form-group textarea, .form-group select {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.5rem;
+    border: 1px solid #ccc;
+}
+
+.form-actions {
+    margin-top: 2rem;
+    text-align: right;
+}
+
+.image-preview {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.image-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>
+            <i class="fas {{ article is defined ? 'fa-edit' : 'fa-plus-circle' }}"></i>
+            {{ article is defined ? 'Modifier' : 'Ajouter' }} un article
+        </h1>
+        <p>Remplissez le formulaire ci-dessous pour {{ article is defined ? 'modifier' : 'ajouter' }} un article</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="section-actions">
+        <a href="/admin/articles" class="action-button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Retour à la liste</span>
+        </a>
+    </div>
+
+    {% if error %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <div class="form-card">
+        <form method="POST" action="{{ article is defined ? '/admin/articles/modifier/' ~ article.id : '/admin/articles/nouveau' }}" class="article-form">
+            <div class="form-grid">
+                <div class="form-main">
+                    <div class="form-group">
+                        <label for="title">Titre de l'article *</label>
+                        <input type="text" id="title" name="title" 
+                               value="{{ article.title ?? '' }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description *</label>
+                        <textarea id="description" name="description" 
+                                rows="5" required>{{ article.description ?? '' }}</textarea>
+                    </div>
+                </div>
+
+                <div class="form-sidebar">
+                    <div class="form-group">
+                        <label for="category">Catégorie *</label>
+                        <select id="category" name="category" required>
+                            <option value="">Sélectionner une catégorie</option>
+                            <option value="machines" {{ article.category is defined and article.category == 'machines' ? 'selected' : '' }}>Machines</option>
+                            <option value="vetements-hommes" {{ article.category is defined and article.category == 'vetements-hommes' ? 'selected' : '' }}>Vêtements Hommes</option>
+                            <option value="vetements-femmes" {{ article.category is defined and article.category == 'vetements-femmes' ? 'selected' : '' }}>Vêtements Femmes</option>
+                            <option value="accessoires" {{ article.category is defined and article.category == 'accessoires' ? 'selected' : '' }}>Accessoires</option>
+                            <option value="complements" {{ article.category is defined and article.category == 'complements' ? 'selected' : '' }}>Compléments</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="price">Prix (€) *</label>
+                        <input type="number" id="price" name="price" step="0.01" min="0"
+                               value="{{ article.price ?? '' }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image_url">URL de l'image</label>
+                        <input type="url" id="image_url" name="image_url" 
+                               value="{{ article.image_url ?? '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="external_link">Lien d'achat externe</label>
+                        <input type="url" id="external_link" name="external_link" 
+                               value="{{ article.external_link ?? '' }}">
+                    </div>
+
+                    {% if article is defined and article.image_url %}
+                        <div class="form-group">
+                            <label>Aperçu de l'image</label>
+                            <div class="image-preview">
+                                <img src="{{ article.image_url }}" alt="{{ article.title }}">
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="form-actions">
+                        <button type="submit" class="action-button">
+                            <i class="fas {{ article is defined ? 'fa-save' : 'fa-plus' }}"></i>
+                            <span>{{ article is defined ? 'Enregistrer les modifications' : 'Créer l\'article' }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+document.getElementById('image_url').addEventListener('change', function() {
+    const imagePreview = document.querySelector('.image-preview');
+    if (imagePreview) {
+        const img = imagePreview.querySelector('img');
+        img.src = this.value;
+    }
+});
+</script>
+{% endblock %}

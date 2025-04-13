@@ -1,0 +1,140 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Compléments Alimentaires - TigerGym{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Compléments<br>Alimentaires</h1>
+            <p class="hero-subtitle">Nutrition et Performance pour vos Objectifs</p>
+        </div>
+    </section>
+
+    <!-- Filtres Section -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters-wrapper">
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-th-large"></i>
+                        Tout voir
+                    </button>
+                    <button class="filter-btn" data-filter="proteines">
+                        <i class="fas fa-egg"></i>
+                        Protéines
+                    </button>
+                    <button class="filter-btn" data-filter="vitamines">
+                        <i class="fas fa-capsules"></i>
+                        Vitamines
+                    </button>
+                    <button class="filter-btn" data-filter="energie">
+                        <i class="fas fa-bolt"></i>
+                        Énergie
+                    </button>
+                </div>
+                <div class="sort-group">
+                    <select class="sort-select">
+                        <option value="popular">Les plus populaires</option>
+                        <option value="price-asc">Prix croissant</option>
+                        <option value="price-desc">Prix décroissant</option>
+                        <option value="new">Nouveautés</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid Section -->
+    <section class="products-section">
+        <div class="section-header">
+            <h2 class="section-title">Nos Compléments</h2>
+            <p class="section-subtitle">Des produits de qualité pour des résultats optimaux</p>
+        </div>
+        <div class="products-grid">
+            {% for article in articles %}
+                <article class="product-card">
+                    {% if article.image %}
+                        <img src="{{ article.image }}" alt="{{ article.name }}" class="product-image">
+                    {% else %}
+                        <div class="product-image" style="background: linear-gradient(45deg, var(--primary-dark), var(--primary));">
+                            <div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-pills" style="font-size: 3rem; color: rgba(255,255,255,0.3);"></i>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="product-overlay"></div>
+                    <div class="product-content">
+                        <span class="product-category">{{ article.subcategory|default('Complément')|title }}</span>
+                        <h3 class="product-title">{{ article.name }}</h3>
+                        <p class="product-description">{{ article.description|length > 100 ? article.description|slice(0, 100) ~ '...' : article.description }}</p>
+                        <div class="product-meta">
+                            <span class="product-price">{{ article.price }} €</span>
+                            {% if article.stock > 0 %}
+                                <span class="stock in-stock">En stock</span>
+                            {% else %}
+                                <span class="stock out-of-stock">Rupture de stock</span>
+                            {% endif %}
+                        </div>
+                        <a href="/article/{{ article.id }}" class="product-link">
+                            <i class="fas fa-eye"></i>
+                            Voir le produit
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Conseils Nutritionnels</h2>
+            <p>Découvrez nos guides pour optimiser votre nutrition sportive</p>
+            <a href="/guides-nutrition" class="cta-button">
+                <i class="fas fa-book-medical"></i>
+                Voir les guides
+            </a>
+        </div>
+    </section>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des filtres
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Animation au scroll
+    const animateOnScroll = () => {
+        const products = document.querySelectorAll('.product-card');
+        products.forEach((product, index) => {
+            if (isElementInViewport(product)) {
+                setTimeout(() => {
+                    product.classList.add('animate');
+                }, index * 100);
+            }
+        });
+    };
+
+    window.addEventListener('scroll', animateOnScroll);
+    animateOnScroll();
+});
+
+function isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}
+</script>
+{% endblock %}

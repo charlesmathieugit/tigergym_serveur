@@ -1,0 +1,142 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nos Machines de Fitness - TigerGym{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Nos Machines<br>de Fitness</h1>
+            <p class="hero-subtitle">Équipement Professionnel pour votre Salle</p>
+        </div>
+    </section>
+
+    <!-- Filtres Section -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters-wrapper">
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-th-large"></i>
+                        Tout voir
+                    </button>
+                    <button class="filter-btn" data-filter="cardio">
+                        <i class="fas fa-running"></i>
+                        Cardio
+                    </button>
+                    <button class="filter-btn" data-filter="musculation">
+                        <i class="fas fa-dumbbell"></i>
+                        Musculation
+                    </button>
+                    <button class="filter-btn" data-filter="crossfit">
+                        <i class="fas fa-stopwatch"></i>
+                        CrossFit
+                    </button>
+                </div>
+                <div class="sort-group">
+                    <select class="sort-select">
+                        <option value="popular">Les plus populaires</option>
+                        <option value="price-asc">Prix croissant</option>
+                        <option value="price-desc">Prix décroissant</option>
+                        <option value="new">Nouveautés</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid Section -->
+    <section class="products-section">
+        <div class="section-header">
+            <h2 class="section-title">Nos Machines de Fitness</h2>
+            <p class="section-subtitle">Équipement Professionnel pour des Résultats Optimaux</p>
+        </div>
+        <div class="products-grid">
+            {% for article in articles %}
+                <article class="product-card">
+                    {% if article.image %}
+                        <img src="{{ article.image }}" alt="{{ article.name }}" class="product-image">
+                    {% else %}
+                        <div class="product-image" style="background: linear-gradient(45deg, var(--primary-dark), var(--primary));">
+                            <div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-dumbbell" style="font-size: 3rem; color: rgba(255,255,255,0.3);"></i>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="product-overlay"></div>
+                    <div class="product-content">
+                        <span class="product-category">{{ article.subcategory|default('Machine')|title }}</span>
+                        <h3 class="product-title">{{ article.name }}</h3>
+                        <p class="product-description">{{ article.description|length > 100 ? article.description|slice(0, 100) ~ '...' : article.description }}</p>
+                        <div class="product-meta">
+                            <span class="product-price">{{ article.price }} €</span>
+                            <div class="product-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                        <a href="/article/{{ article.id }}" class="product-link">
+                            <i class="fas fa-eye"></i>
+                            Voir le produit
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Guide d'Installation</h2>
+            <p>Découvrez nos conseils pour installer votre équipement</p>
+            <a href="/guide-installation" class="cta-button">
+                <i class="fas fa-tools"></i>
+                Voir le guide
+            </a>
+        </div>
+    </section>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des filtres
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Animation au scroll
+    const animateOnScroll = () => {
+        const products = document.querySelectorAll('.product-card');
+        products.forEach((product, index) => {
+            if (isElementInViewport(product)) {
+                setTimeout(() => {
+                    product.classList.add('animate');
+                }, index * 100);
+            }
+        });
+    };
+
+    window.addEventListener('scroll', animateOnScroll);
+    animateOnScroll();
+});
+
+function isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}
+</script>
+{% endblock %}

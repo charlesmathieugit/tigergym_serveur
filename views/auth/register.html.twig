@@ -1,0 +1,305 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>{{ h1 }}</h1>
+            <p class="hero-subtitle">Rejoignez la communauté TigerGym</p>
+        </div>
+    </section>
+
+    <!-- Register Section -->
+    <section class="auth-section">
+        <div class="container">
+            <div class="filters-wrapper">
+                <div class="filter-group">
+                    <button class="filter-btn active" id="register-btn">
+                        <i class="fas fa-user-plus"></i>
+                        Inscription
+                    </button>
+                    <button class="filter-btn" id="login-btn" onclick="window.location.href='/connexion'">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Connexion
+                    </button>
+                </div>
+            </div>
+
+            <div class="auth-wrapper">
+                {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="/inscription" class="auth-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstname" class="field-label">
+                                <i class="fas fa-user"></i>
+                                Prénom
+                            </label>
+                            <input type="text" id="firstname" name="firstname" required 
+                                   placeholder="Votre prénom"
+                                   class="field-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastname" class="field-label">
+                                <i class="fas fa-user"></i>
+                                Nom
+                            </label>
+                            <input type="text" id="lastname" name="lastname" required 
+                                   placeholder="Votre nom"
+                                   class="field-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="field-label">
+                            <i class="fas fa-envelope"></i>
+                            Email
+                        </label>
+                        <input type="email" id="email" name="email" required 
+                               placeholder="Votre adresse email"
+                               class="field-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="field-label">
+                            <i class="fas fa-lock"></i>
+                            Mot de passe
+                        </label>
+                        <input type="password" id="password" name="password" required 
+                               placeholder="Choisissez un mot de passe sécurisé"
+                               class="field-input">
+                        <small class="field-help">
+                            <i class="fas fa-info-circle"></i>
+                            Le mot de passe doit contenir au moins 8 caractères
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password_confirm" class="field-label">
+                            <i class="fas fa-lock"></i>
+                            Confirmer le mot de passe
+                        </label>
+                        <input type="password" id="password_confirm" name="password_confirm" required 
+                               placeholder="Confirmez votre mot de passe"
+                               class="field-input">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="action-button">
+                            <i class="fas fa-user-plus"></i>
+                            Créer mon compte
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+.hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/assets/images/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    text-align: center;
+    padding: 6rem 0;
+    margin-bottom: 0;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.auth-section {
+    background-color: #f4f4f4;
+    padding: 4rem 0;
+}
+
+.filters-wrapper {
+    margin-bottom: 2rem;
+}
+
+.filter-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn i {
+    font-size: 1.1rem;
+    color: #ff0000;
+}
+
+.filter-btn:hover, .filter-btn.active {
+    background: #ff0000;
+    border-color: #ff0000;
+    color: white;
+}
+
+.filter-btn:hover i, .filter-btn.active i {
+    color: white;
+}
+
+.auth-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.field-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.field-label i {
+    color: #ff0000;
+}
+
+.field-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.field-input:focus {
+    border-color: #ff0000;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+}
+
+.field-help {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.field-help i {
+    color: #666;
+}
+
+.action-button {
+    width: 100%;
+    padding: 1rem;
+    background: #ff0000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.action-button:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.alert-danger {
+    background: #fff5f5;
+    color: #ff0000;
+    border: 1px solid #ff0000;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .auth-wrapper {
+        margin: 0 1rem;
+        padding: 1.5rem;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-btn {
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}

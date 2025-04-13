@@ -1,0 +1,164 @@
+{% macro rating(articleId, averageRating, userRating, ratingCount) %}
+<style>
+.rating-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.rating-stars {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.rating-star {
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.25rem;
+    transition: color 0.3s ease;
+}
+
+.rating-star.active {
+    color: var(--primary);
+}
+
+.rating-star:hover {
+    color: var(--primary);
+}
+
+.rating-info {
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.rating-message {
+    margin-left: 1rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    display: none;
+}
+
+.rating-message.success {
+    background-color: var(--primary);
+    color: var(--text);
+}
+
+.rating-message.error {
+    background-color: #dc3545;
+    color: var(--text);
+}
+</style>
+
+<div class="rating-section" data-article-id="{{ articleId }}">
+    {% if user.is_logged_in %}
+        <div class="rating-stars">
+            {% for i in 1..5 %}
+                <span class="rating-star{% if i <= userRating %} active{% endif %}" data-rating="{{ i }}" title="Noter {{ i }}/5" onclick="handleRatingClick(this, '{{ articleId }}', {{ i }})">
+                    <i class="fas fa-star"></i>
+                </span>
+            {% endfor %}
+        </div>
+        <div class="rating-info">
+            {{ averageRating|number_format(1) }}/5 ({{ ratingCount }} vote{{ ratingCount != 1 ? 's' : '' }})
+        </div>
+        <div class="rating-message"></div>
+    {% else %}
+        <div class="rating-stars">
+            {% for i in 1..5 %}
+                <span class="rating-star{% if i <= averageRating %} active{% endif %}">
+                    <i class="fas fa-star"></i>
+                </span>
+            {% endfor %}
+        </div>
+        <div class="rating-info">
+            {{ averageRating|number_format(1) }}/5 ({{ ratingCount }} vote{{ ratingCount != 1 ? 's' : '' }})
+        </div>
+        <div class="rating-login">
+            <a href="/connexion">
+                <i class="fas fa-sign-in-alt"></i> Connectez-vous pour noter
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{% macro javascripts() %}
+<script>
+console.log('Initialisation du système de notation...');
+
+function handleRatingClick(starElement, articleId, rating) {
+    console.log('Clic sur étoile détecté:', { articleId, rating });
+    
+    var ratingSection = starElement.closest('.rating-section');
+    var stars = ratingSection.querySelectorAll('.rating-star');
+    var message = ratingSection.querySelector('.rating-message');
+
+    console.log('Envoi de la note au serveur...');
+    fetch('/ratings/rate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: 'article_id=' + encodeURIComponent(articleId) + '&rating=' + encodeURIComponent(rating)
+    })
+    .then(function(response) {
+        console.log('Réponse du serveur:', response.status);
+        if (!response.ok) {
+            return response.json().then(function(data) {
+                console.error('Erreur serveur:', data);
+                throw new Error(data.message || 'Erreur réseau');
+            });
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        console.log('Données reçues:', data);
+        if (data.success) {
+            updateStars(stars, data.user_rating);
+            updateInfo(ratingSection, data.average_rating, data.rating_count);
+            showMessage(message, 'Note enregistrée !', true);
+        } else {
+            showMessage(message, data.message || 'Erreur lors de la notation', false);
+        }
+    })
+    .catch(function(error) {
+        console.error('Erreur:', error);
+        showMessage(message, 'Erreur lors de la notation', false);
+    });
+}
+
+function updateStars(stars, userRating) {
+    console.log('Mise à jour des étoiles:', userRating);
+    stars.forEach(function(star, index) {
+        if (index < userRating) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+}
+
+function updateInfo(section, averageRating, ratingCount) {
+    console.log('Mise à jour des informations:', { averageRating, ratingCount });
+    var info = section.querySelector('.rating-info');
+    info.textContent = averageRating.toFixed(1) + '/5 (' + ratingCount + ' vote' + (ratingCount !== 1 ? 's' : '') + ')';
+}
+
+function showMessage(element, text, success) {
+    if (!element) return;
+    console.log('Affichage du message:', { text, success });
+    element.textContent = text;
+    element.style.display = 'block';
+    element.className = 'rating-message ' + (success ? 'success' : 'error');
+    setTimeout(function() {
+        element.style.display = 'none';
+    }, 3000);
+}
+
+// Vérifier que le script est bien chargé
+console.log('Script de notation chargé et prêt !');
+</script>
+{% endmacro %}

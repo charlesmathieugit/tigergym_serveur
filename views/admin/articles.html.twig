@@ -1,0 +1,73 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Administration des articles - TigerGym{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1><i class="fas fa-newspaper"></i> Administration des Articles</h1>
+        <p>Gérez votre catalogue d'articles sportifs</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="section-actions">
+        <a href="/admin/articles/nouveau" class="action-card">
+            <i class="fas fa-plus"></i>
+            <span>Nouvel article</span>
+        </a>
+    </div>
+
+    {% if success %}
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        {{ success }}
+    </div>
+    {% endif %}
+
+    {% if error %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <div class="articles-grid">
+        {% for article in articles %}
+        <div class="article-card action-card">
+            <div class="article-image">
+                {% if article.image %}
+                <img src="{{ article.image }}" alt="{{ article.title }}">
+                {% else %}
+                <div class="placeholder-image">
+                    <i class="fas fa-image"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="article-content">
+                <h3>{{ article.title }}</h3>
+                <p class="article-description">{{ article.description|length > 100 ? article.description|slice(0, 100) ~ '...' : article.description }}</p>
+                <div class="article-meta">
+                    <span class="price">{{ article.price }} €</span>
+                    <span class="date">{{ article.created_at|date('d/m/Y') }}</span>
+                </div>
+            </div>
+            <div class="article-overlay">
+                <div class="overlay-actions">
+                    <a href="/admin/articles/modifier/{{ article.id }}" class="action-button">
+                        <i class="fas fa-edit"></i>
+                        <span>Modifier</span>
+                    </a>
+                    <form action="/admin/articles/supprimer/{{ article.id }}" method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">
+                        <button type="submit" class="action-button">
+                            <i class="fas fa-trash"></i>
+                            <span>Supprimer</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

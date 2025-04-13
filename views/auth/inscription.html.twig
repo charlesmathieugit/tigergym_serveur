@@ -1,0 +1,254 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<style>
+.auth-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #242424;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.auth-visual {
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.9), rgba(255, 0, 0, 0.7)),
+                url('/assets/images/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 4rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-visual::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('/assets/images/pattern.png');
+    opacity: 0.1;
+}
+
+.auth-visual-content {
+    position: relative;
+    z-index: 1;
+}
+
+.auth-visual h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    line-height: 1.2;
+}
+
+.auth-visual p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.auth-form-container {
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-nav {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.auth-nav-btn {
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+    background: transparent;
+    border: 2px solid #ff0000;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.auth-nav-btn i {
+    font-size: 1rem;
+}
+
+.auth-nav-btn.active {
+    background: #ff0000;
+}
+
+.auth-nav-btn:hover {
+    background: #ff0000;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.form-group label i {
+    color: #ff0000;
+}
+
+.form-group input {
+    padding: 0.8rem 1rem;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background: #333;
+    color: #fff;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #ff0000;
+}
+
+.submit-btn {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: #ff0000;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.submit-btn:hover {
+    background: #cc0000;
+}
+
+.alert {
+    padding: 1rem;
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid #ff0000;
+    border-radius: 5px;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert i {
+    color: #ff0000;
+}
+</style>
+
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-visual">
+            <div class="auth-visual-content">
+                <h1>{{ h1 }}</h1>
+                <p>Rejoignez la communauté TigerGym dès aujourd'hui et accédez à notre sélection exclusive de matériel sportif de qualité.</p>
+            </div>
+        </div>
+        
+        <div class="auth-form-container">
+            <div class="auth-nav">
+                <a href="/connexion" class="auth-nav-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Connexion</span>
+                </a>
+                <button class="auth-nav-btn active">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Inscription</span>
+                </button>
+            </div>
+
+            {% if error %}
+                <div class="alert">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span class="alert-text">{{ error }}</span>
+                </div>
+            {% endif %}
+
+            <form method="POST" action="/inscription" class="auth-form">
+                <div class="form-group">
+                    <label for="username">
+                        <i class="fas fa-user"></i>
+                        Nom d'utilisateur
+                    </label>
+                    <input type="text" id="username" name="username" required 
+                           placeholder="Choisissez un nom d'utilisateur">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i>
+                        Email
+                    </label>
+                    <input type="email" id="email" name="email" required 
+                           placeholder="Votre adresse email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i>
+                        Mot de passe
+                    </label>
+                    <input type="password" id="password" name="password" required
+                           placeholder="Choisissez un mot de passe">
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-user-plus"></i>
+                    Créer mon compte
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

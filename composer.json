@@ -4,11 +4,20 @@
         "twig/twig":"^3.18"
         
     },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
     "autoload": {
-    "psr-4": {
-      "Controllers\\": "controllers/",
-      "Database\\":"database/",
-      "Models\\": "models",
-      "Middlewares\\": "middlewares/"
+        "psr-4": {
+            "Controllers\\": "controllers/",
+            "Database\\":"database/",
+            "Models\\": "models",
+            "Middlewares\\": "middlewares/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "test/"
+        }
     }
-} }
+}
